@@ -1,0 +1,23 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+canvas {
+  display: block; /* Zorgt ervoor dat het canvas als een block element wordt weergegeven */
+  width: 100%; /* Volledige breedte van het scherm */
+  height: 100%; /* Volledige hoogte van het scherm */
+  border: 2px solid white;
+  background-color: rgba(0, 0, 0, 0.2);
+  background: url("../assets/snowfall.gif") no-repeat center center/cover;
+}
