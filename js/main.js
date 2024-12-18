@@ -70,6 +70,18 @@ canvas.addEventListener("click", (event) => {
   }
 });
 
+function setCursor(color) {
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 20 20">
+      <line x1="10" y1="0" x2="10" y2="20" stroke="${color}" stroke-width="2"/>
+      <line x1="0" y1="10" x2="20" y2="10" stroke="${color}" stroke-width="2"/>
+    </svg>
+  `;
+  const dataURL = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+  canvas.style.cursor = `url(${dataURL}) 10 10, crosshair`;
+}
+setCursor("red");
+
 // --- Game functionaliteit ---
 function createElves() {
   elves.length = 0; // Reset de elfenlijst
