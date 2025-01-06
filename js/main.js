@@ -24,6 +24,10 @@ let level = 1; // Start op level 1
 const elves = [];
 let gameStarted = false; // Houd bij of het spel is gestart
 
+// Checkpoint message
+let checkpointMessage = "";
+let checkpointTimer = null;
+
 // --- Startscherm ---
 function drawStartScreen() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -86,7 +90,7 @@ setCursor("red");
 function createElves() {
   elves.length = 0; // Reset de elfenlijst
   for (let i = 0; i < elfCount; i++) {
-    const speedMultiplier = 1 + level * 0.5; // Snelheid stijgt per level
+    const speedMultiplier = 1 + level * 0.3; // Snelheid stijgt per level
 
     const elfWidth = 100;
     const elfHeight = 100;
@@ -135,6 +139,13 @@ function drawScore() {
   ctx.fillText(`Score: ${score}`, 20, 30);
   ctx.fillText(`Remaining Shots: ${remainingShots}`, 20, 60);
   ctx.fillText(`Level: ${level}`, canvas.width - 120, 30);
+
+  // Checkpoint message
+  if (checkpointMessage) {
+    ctx.font = "48px Arial";
+    ctx.fillStyle = "green";
+    ctx.fillText(checkpointMessage, canvas.width / 2 - 150, canvas.height / 2);
+  }
 }
 
 canvas.addEventListener("click", (event) => {
@@ -170,12 +181,28 @@ function checkLevelProgress(allElvesHit) {
     // Ga naar het volgende level
     level++;
     elfCount += 2; // Voeg 2 extra elfen toe
-    remainingShots += 10; // Voeg 5 extra kogels toe
+
+    // Controleer op checkpoint levels (5, 10, 15, ...)
+    if (level % 5 === 0) {
+      remainingShots += 20; // Voeg 20 extra kogels toe
+      showCheckpointMessage("Checkpoint +20");
+    } else {
+      remainingShots += 10; // Voeg standaard 10 kogels toe
+    }
+
     createElves(); // Elfen met hogere snelheid
   } else {
     alert("Je hebt niet alle elfen geraakt! Probeer opnieuw.");
     resetGame();
   }
+}
+
+function showCheckpointMessage(message) {
+  checkpointMessage = message;
+  clearTimeout(checkpointTimer);
+  checkpointTimer = setTimeout(() => {
+    checkpointMessage = "";
+  }, 2000); // Bericht verdwijnt na 2 seconden
 }
 
 function resetGame() {
