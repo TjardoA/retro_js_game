@@ -28,6 +28,11 @@ let gameStarted = false; // Houd bij of het spel is gestart
 let checkpointMessage = "";
 let checkpointTimer = null;
 
+// FPS instellen
+const FPS = 60;
+const interval = 1000 / FPS; // 60 FPS = 1000 ms / 60 = 16.67 ms
+let lastTime = 0; // Tijd van de laatste update
+
 // --- Startscherm ---
 function drawStartScreen() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -90,7 +95,7 @@ setCursor("red");
 function createElves() {
   elves.length = 0; // Reset de elfenlijst
   for (let i = 0; i < elfCount; i++) {
-    const speedMultiplier = 1 + level * 0.3; // Snelheid stijgt per level
+    const speedMultiplier = 0.5 + level * 1; // Snelheid stijgt per level
 
     const elfWidth = 100;
     const elfHeight = 100;
@@ -120,15 +125,29 @@ function drawElves() {
   });
 }
 
-function updateElves() {
+function updateElves(deltaTime) {
   elves.forEach((elf) => {
     if (!elf.hit) {
-      elf.x += elf.speedX;
-      elf.y += elf.speedY;
+      elf.x += elf.speedX * (deltaTime / interval); // Pas snelheid aan op basis van tijd
+      elf.y += elf.speedY * (deltaTime / interval); // Pas snelheid aan op basis van tijd
 
-      // Botsingen met canvasranden
-      if (elf.x <= 0 || elf.x + elf.width >= canvas.width) elf.speedX *= -1;
-      if (elf.y <= 0 || elf.y + elf.height >= canvas.height) elf.speedY *= -1;
+      // Correctie voor botsingen met de randen van het canvas
+      if (elf.x <= 0) {
+        elf.x = 0; // Zorg ervoor dat de elf niet buiten de linkerrand gaat
+        elf.speedX *= -1; // Keer de beweging om
+      }
+      if (elf.x + elf.width >= canvas.width) {
+        elf.x = canvas.width - elf.width; // Zorg ervoor dat de elf niet buiten de rechterrand gaat
+        elf.speedX *= -1; // Keer de beweging om
+      }
+      if (elf.y <= 0) {
+        elf.y = 0; // Zorg ervoor dat de elf niet buiten de bovenkant gaat
+        elf.speedY *= -1; // Keer de beweging om
+      }
+      if (elf.y + elf.height >= canvas.height) {
+        elf.y = canvas.height - elf.height; // Zorg ervoor dat de elf niet buiten de onderkant gaat
+        elf.speedY *= -1; // Keer de beweging om
+      }
     }
   });
 }
@@ -213,13 +232,19 @@ function resetGame() {
   createElves();
 }
 
-function gameLoop() {
-  if (!gameStarted) return;
+function gameLoop(timestamp) {
+  const deltaTime = timestamp - lastTime;
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawElves();
-  updateElves();
-  drawScore();
+  // Update de game alleen als de benodigde tijd is verstreken
+  if (deltaTime >= interval) {
+    lastTime = timestamp - (deltaTime % interval); // Herstel de tijd voor de volgende iteratie
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawElves();
+    updateElves(deltaTime); // Gebruik deltaTime voor consistentie
+    drawScore();
+  }
+
   requestAnimationFrame(gameLoop);
 }
 
