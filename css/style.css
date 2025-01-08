@@ -19,5 +19,5 @@ canvas {
   height: 100%; /* Volledige hoogte van het scherm */
   border: 2px solid white;
   background-color: rgba(0, 0, 0, 0.2);
-  background: url("../assets/snowfall.gif") no-repeat center center/cover;
+  background: url("../assets/background.jpg") no-repeat center center/cover;
 }
