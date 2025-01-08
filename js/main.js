@@ -117,6 +117,7 @@ setCursor("red");
 // --- Game functionaliteit ---
 function createElves() {
   elves.length = 0; // Reset de elfenlijst
+  elves.length = 0; // Reset de elfenlijst
   for (let i = 0; i < elfCount; i++) {
     const speedMultiplier = 0.2 + level * 0.5; // Snelheid stijgt per level
 
@@ -249,5 +250,7 @@ function gameLoop(timestamp) {
   requestAnimationFrame(gameLoop);
 }
 
+// Startscherm laten zien
+drawStartScreen();
 // Startscherm laten zien
 drawStartScreen();
