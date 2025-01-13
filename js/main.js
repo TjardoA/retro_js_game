@@ -26,6 +26,9 @@ let level = 1; // Start op level 1
 const elves = [];
 let gameStarted = false; // Houd bij of het spel is gestart
 
+// Deeltjes array
+let particles = [];
+
 // Checkpoint message
 let checkpointMessage = "";
 let checkpointTimer = null;
@@ -88,6 +91,8 @@ canvas.addEventListener("click", (event) => {
         score += 10;
         elf.hit = true;
         hitElf = true; // Markeer dat een elf geraakt is
+        // Voeg deeltjes toe wanneer een elf geraakt wordt
+        particles.push([mouseX, mouseY]);
       }
     });
 
@@ -115,6 +120,27 @@ function setCursor(color) {
   canvas.style.cursor = `url(${dataURL}) 10 10, crosshair`;
 }
 setCursor("red");
+
+// --- Deeltjeslogica ---
+function updateParticles() {
+  for (let i = 0; i < particles.length; i++) {
+    particles[i][1] += 3; // Laat de deeltjes naar beneden vallen
+
+    // Reset de deeltjes naar boven als ze de bodem bereiken
+    if (particles[i][1] > canvas.height) {
+      particles[i][1] = 0;
+    }
+  }
+}
+
+function drawParticles() {
+  ctx.fillStyle = "white"; // De kleur van de deeltjes
+  for (let i = 0; i < particles.length; i++) {
+    ctx.beginPath();
+    ctx.arc(particles[i][0], particles[i][1], 6, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
 
 // --- Game functionaliteit ---
 function createElves() {
@@ -230,7 +256,7 @@ function drawScore() {
 
   if (checkpointMessage) {
     ctx.font = "48px Arial";
-    ctx.fillStyle = "green";
+    ctx.fillStyle = "white";
     ctx.fillText(checkpointMessage, canvas.width / 2 - 150, canvas.height / 2);
   }
 }
@@ -257,10 +283,14 @@ function gameLoop(timestamp) {
   if (deltaTime >= interval) {
     lastTime = timestamp;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawElves();
-    updateElves(deltaTime);
-    drawScore();
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Canvas wissen
+    drawElves(); // Teken de elfen
+    updateElves(deltaTime); // Werk de elfen bij
+    drawScore(); // Teken de score
+
+    // Deeltjes updaten en tekenen
+    updateParticles();
+    drawParticles();
 
     if (gameStarted && elves.every((elf) => elf.hit)) {
       checkLevelProgress(true);
