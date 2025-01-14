@@ -1,0 +1,10 @@
+body {
+  background-color: #03325d;
+}
+
+#game_over {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  color: green;
+}

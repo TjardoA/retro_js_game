@@ -16,6 +16,8 @@ const elfImage = new Image();
 elfImage.src = "../assets/elf_falling-.png"; // Sprite van de elf met motion blur
 const elfFlyingImage = new Image();
 elfFlyingImage.src = "../assets/elf_flying.png"; // Sprite van de elf die omhoog gaat
+const elfHitImage = new Image();
+elfHitImage.src = "../assets/game_over_elf.png"; // Sprite van de elf die geraakt is
 const backgroundImage = new Image();
 backgroundImage.src = "../assets/background.jpg"; // Achtergrond voor het startscherm
 
@@ -90,17 +92,16 @@ canvas.addEventListener("click", (event) => {
       ) {
         score += 10;
         elf.hit = true;
-        hitElf = true; // Markeer dat een elf geraakt is
         // Voeg deeltjes toe wanneer een elf geraakt wordt
         particles.push([mouseX, mouseY]);
+
+        setTimeout(() => {
+          elf.remove = true; // Markeer dat de elf verwijderd moet worden
+        }, 1000);
       }
     });
 
     remainingShots--; // Trek altijd een kogel af, ongeacht of je raakt of mist
-
-    if (!hitElf) {
-      console.log("Je hebt gemist!"); // Optioneel: feedback voor de speler
-    }
 
     if (elves.every((elf) => elf.hit)) {
       checkLevelProgress(true); // Ga naar het volgende level
@@ -170,12 +171,21 @@ function createElves() {
         speedMultiplier *
         (Math.random() < 0.5 ? -1 : 1),
       hit: false, // Elf is nog niet geraakt
+      remove: false, // Markeer als false, totdat de elf geraakt wordt
     });
   }
 }
 
 function updateElves(deltaTime) {
-  elves.forEach((elf) => {
+  for (let i = elves.length - 1; i >= 0; i--) {
+    const elf = elves[i];
+
+    if (elf.remove) {
+      // Verwijder de elf uit de lijst
+      elves.splice(i, 1);
+      continue;
+    }
+
     if (!elf.hit) {
       elf.x += elf.speedX * (deltaTime / interval); // Pas snelheid aan op basis van tijd
       elf.y += elf.speedY * (deltaTime / interval);
@@ -198,7 +208,7 @@ function updateElves(deltaTime) {
         elf.speedY *= -1; // Keer de beweging om
       }
     }
-  });
+  }
 }
 
 function checkLevelProgress(allElvesHit) {
@@ -209,35 +219,16 @@ function checkLevelProgress(allElvesHit) {
     showCheckpointMessage(level % 5 === 0 ? "Checkpoint +20" : "+10 Shots");
     createElves();
   } else {
-    alert("Je hebt niet alle elfen geraakt! Probeer opnieuw.");
-    resetGame();
+    window.location.href = "game_over.html"; // Vervang dit door het pad naar je verliezen-scherm
   }
 }
 
 function drawElfWithMotionBlur(elf) {
-  if (!elf.hit) {
+  if (elf.hit) {
+    ctx.drawImage(elfHitImage, elf.x, elf.y, elf.width, elf.height);
+  } else {
     const imageToDraw = elf.speedY < 0 ? elfFlyingImage : elfImage;
-    const useMotionBlur = false; // Zet deze op false om motion blur uit te schakelen
-
-    if (useMotionBlur) {
-      const blurSteps = 4;
-      const opacityStep = 1 / blurSteps;
-
-      for (let i = 0; i < blurSteps; i++) {
-        ctx.globalAlpha = 1 - i * opacityStep;
-        ctx.drawImage(
-          imageToDraw,
-          elf.x,
-          elf.y + elf.speedY * -i * 0.3,
-          elf.width,
-          elf.height
-        );
-      }
-      ctx.globalAlpha = 1;
-    } else {
-      // Als motion blur uit staat, teken alleen de elf
-      ctx.drawImage(imageToDraw, elf.x, elf.y, elf.width, elf.height);
-    }
+    ctx.drawImage(imageToDraw, elf.x, elf.y, elf.width, elf.height);
   }
 }
 
