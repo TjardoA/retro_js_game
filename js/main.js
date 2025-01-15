@@ -219,7 +219,7 @@ function checkLevelProgress(allElvesHit) {
     showCheckpointMessage(level % 5 === 0 ? "Checkpoint +20" : "+10 Shots");
     createElves();
   } else {
-    window.location.href = "game_over.html"; // Vervang dit door het pad naar je verliezen-scherm
+    window.location.href = "game_over.html";
   }
 }
 
